@@ -1,6 +1,6 @@
 import json
 import os.path
-
+from werkzeug.utils import secure_filename
 from flask import Flask, flash, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -25,7 +25,14 @@ def your_url():
             flash('That short name has already been taken. Please select another name.')
             return redirect(url_for('home'))
 
-        urls[request.form['code']] = {'url': request.form['url']}
+        if 'url' in request.form.keys():
+            urls[request.form['code']] = {'url': request.form['url']}
+        else:
+            f = request.files['file']
+            full_name = request.form['code'] + secure_filename(f.filename)
+            f.save(os.getcwd() + '/' + full_name)
+            urls[request.form['code']] = {'file':full_name}
+
         with open('urls.json','w') as url_file:
             json.dump(urls, url_file)
 
