@@ -1,7 +1,8 @@
+from fileinput import filename
 import json
 import os.path
 from werkzeug.utils import secure_filename
-from flask import Flask, flash, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, url_for, abort
 
 app = Flask(__name__)
 app.secret_key = 'random'
@@ -30,7 +31,7 @@ def your_url():
         else:
             f = request.files['file']
             full_name = request.form['code'] + secure_filename(f.filename)
-            f.save(os.getcwd() + '/' + full_name)
+            f.save(os.getcwd() + '/static/user_files/' + full_name)
             urls[request.form['code']] = {'file':full_name}
 
         with open('urls.json','w') as url_file:
@@ -40,4 +41,14 @@ def your_url():
     else:
         return redirect(url_for('home'))
     
-
+@app.route('/<string:code>')
+def redirect_to_url(code):
+    if os.path.exists('urls.json'):
+        with open('urls.json') as urls_file:
+            urls = json.load(urls_file)
+            if code in urls.keys():
+                if 'url' in urls[code].keys():
+                    return redirect(urls[code]['url'])
+                else:
+                    return redirect(url_for('static', filename='user_files/' + urls[code]['file']))
+    return abort(404)
