@@ -1,9 +1,10 @@
 import json
 import os.path
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = 'random'
 
 
 @app.route('/')
@@ -21,11 +22,15 @@ def your_url():
                 urls = json.load(urls_file)
         
         if request.form['code'] in urls.keys():
+            flash('That short name has already been taken. Please select another name.')
             return redirect(url_for('home'))
 
         urls[request.form['code']] = {'url': request.form['url']}
         with open('urls.json','w') as url_file:
             json.dump(urls, url_file)
+
         return render_template('your_url.html', code=request.form['code'])
     else:
         return redirect(url_for('home'))
+    
+
