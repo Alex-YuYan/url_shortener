@@ -2,7 +2,7 @@ from fileinput import filename
 import json
 import os.path
 from werkzeug.utils import secure_filename
-from flask import Flask, flash, render_template, request, redirect, url_for, abort
+from flask import Flask, flash, render_template, request, redirect, url_for, abort, session
 
 app = Flask(__name__)
 app.secret_key = 'random'
@@ -10,7 +10,7 @@ app.secret_key = 'random'
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', codes=session.keys())
 
 
 @app.route('/your-url', methods=['GET', 'POST'])
@@ -36,6 +36,7 @@ def your_url():
 
         with open('urls.json','w') as url_file:
             json.dump(urls, url_file)
+            session[request.form['code']] = True
 
         return render_template('your_url.html', code=request.form['code'])
     else:
