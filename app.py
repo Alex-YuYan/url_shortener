@@ -2,7 +2,7 @@ from fileinput import filename
 import json
 import os.path
 from werkzeug.utils import secure_filename
-from flask import Flask, flash, render_template, request, redirect, url_for, abort, session
+from flask import Flask, flash, jsonify, render_template, request, redirect, url_for, abort, session
 
 app = Flask(__name__)
 app.secret_key = 'random'
@@ -57,3 +57,7 @@ def redirect_to_url(code):
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+@app.route('/api')
+def session_api():
+    return jsonify(list(session.keys()))
