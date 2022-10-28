@@ -1,1 +1,1 @@
-# Flask Demo Project for Devin
+# Flask Demo Project
